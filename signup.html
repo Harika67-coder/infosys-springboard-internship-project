@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign Up - SkillConnect</title>
+
+  <!-- Bootstrap + Icons -->
+  <link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+  <link href="assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+
+  <!-- Main CSS (SkillConnect Theme) -->
+  <link href="assets/css/main.css" rel="stylesheet">
+
+  <style>
+    body {
+      background: #f2f6ff;
+      overflow-x: hidden;
+      padding-top: 60px;
+    }
+
+    .signup-wrapper {
+      max-width: 1000px;
+      margin: 5% auto;
+      background: #ffffff;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+      overflow: hidden !important;
+    }
+
+    .signup-left {
+      background: linear-gradient(135deg, #4154f1 0%, #6576ff 100%);
+      padding: 40px;
+      color: #fff;
+    }
+
+    .signup-left img {
+      width: 100%;
+      max-width: 400px;
+      margin-top: 20px;
+      height: auto;
+    }
+
+    .signup-right {
+      padding: 40px 50px;
+    }
+
+    .btn-primary {
+      background-color: #4154f1;
+      border-color: #4154f1;
+    }
+
+    .btn-primary:hover {
+      background-color: #3244d5;
+    }
+
+    .home-btn {
+      position: fixed;
+      top: 15px;
+      right: 15px;
+      z-index: 999;
+    }
+
+    .toast-container {
+      position: fixed;
+      top: 70px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 1055;
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Home Button -->
+  <a href="index.html" class="btn btn-outline-primary home-btn">Home</a>
+
+  <div class="signup-wrapper row">
+    <!-- Illustration Side -->
+    <div class="col-lg-6 col-md-12 signup-left text-center text-lg-start">
+      <h2 class="fw-bold">Join SkillConnect</h2>
+      <p>Connect with top freelancers & clients worldwide.</p>
+      <img src="assets/img/illustration-1.webp" alt="Signup Illustration">
+    </div>
+
+    <!-- Form Side -->
+    <div class="col-lg-6 col-md-12 signup-right">
+      <h3 class="fw-bold mb-3">Create Account</h3>
+      <p class="text-muted">Start your freelancing journey today</p>
+
+      <form id="signupForm">
+        <div class="mb-3">
+          <label class="form-label">Full Name</label>
+          <input type="text" id="name" class="form-control" required>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Email Address</label>
+          <input type="email" id="email" class="form-control" required>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Password</label>
+          <input type="password" id="password" class="form-control" required>
+        </div>
+
+        <!-- Role Selection -->
+        <div class="mb-3">
+          <label class="form-label">Account Type</label>
+          <select id="role" class="form-select" required>
+            <option value="">Select Role</option>
+            <option value="freelancer">Freelancer</option>
+            <option value="recruiter">Recruiter</option>
+          </select>
+        </div>
+
+        <button type="submit" class="btn btn-primary w-100 py-2 mt-2">Sign Up</button>
+
+        <p class="text-center mt-3">
+          Already have an account?
+          <a href="login.html" class="fw-bold">Login</a>
+        </p>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toasts Top-Center -->
+  <div class="toast-container">
+    <div id="signupErrorToast" class="toast align-items-center text-bg-danger border-0" role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="d-flex">
+        <div class="toast-body" id="signupErrorMsg">User already exists!</div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+      </div>
+    </div>
+
+    <div id="signupSuccessToast" class="toast align-items-center text-bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="d-flex">
+        <div class="toast-body" id="signupSuccessMsg">Signup Successful! Redirecting to login...</div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+      </div>
+    </div>
+  </div>
+
+  <script src="assets/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+  <script>
+    document.getElementById("signupForm").onsubmit = function (e) {
+      e.preventDefault();
+
+      let name = document.getElementById("name").value.trim();
+      let email = document.getElementById("email").value.trim();
+      let password = document.getElementById("password").value.trim();
+      let role = document.getElementById("role").value;
+
+      if (!role) {
+        alert("Please select an account type!");
+        return;
+      }
+
+      let users = JSON.parse(localStorage.getItem("users") || "[]");
+
+      let existingUser = users.find(user => user.email === email);
+
+      if (existingUser) {
+        let toastEl = document.getElementById("signupErrorToast");
+        let toast = new bootstrap.Toast(toastEl);
+        toast.show();
+      } else {
+        users.push({ name, email, password, role });
+        localStorage.setItem("users", JSON.stringify(users));
+
+        let toastEl = document.getElementById("signupSuccessToast");
+        let toast = new bootstrap.Toast(toastEl);
+        toast.show();
+
+        document.getElementById("signupForm").reset();
+
+        setTimeout(() => {
+          window.location.href = "login.html";
+        }, 1200);
+      }
+    }
+  </script>
+
+</body>
+</html>
