@@ -55,7 +55,6 @@
       background-color: #3244d5 !important;
     }
 
-    /* Home button fixed at top but inside viewport */
     .home-btn {
       position: fixed;
       top: 15px;
@@ -63,60 +62,12 @@
       z-index: 999;
     }
 
-    /* Toast positioning */
     .toast-container {
       position: fixed;
-      top: 70px; /* below home button */
+      top: 70px;
       left: 50%;
       transform: translateX(-50%);
       z-index: 1055;
-    }
-
-    /* Responsive tweaks */
-    @media (max-width: 992px) {
-      body {
-        padding-top: 60px;
-      }
-
-      .login-wrapper {
-        margin: 20px;
-      }
-
-      .login-left,
-      .login-right {
-        padding: 30px 20px;
-      }
-
-      .login-left img {
-        max-width: 300px;
-      }
-    }
-
-    @media (max-width: 768px) {
-      .login-left,
-      .login-right {
-        padding: 20px 15px;
-      }
-
-      .login-left h2 {
-        font-size: 1.8rem;
-      }
-
-      .login-right h3 {
-        font-size: 1.5rem;
-      }
-    }
-
-    @media (max-width: 576px) {
-      .login-left img {
-        max-width: 250px;
-        margin: 20px auto 0;
-        display: block;
-      }
-
-      .login-wrapper {
-        border-radius: 12px;
-      }
     }
   </style>
 </head>
@@ -139,6 +90,14 @@
       <p class="text-muted">Access your account</p>
 
       <form id="loginForm">
+        <div class="mb-3">
+          <label class="form-label fw-bold">Login as:</label>
+          <select id="accountType" class="form-select" required>
+            <option value="">Select account type</option>
+            <option value="freelancer">Freelancer</option>
+            <option value="recruiter">Recruiter</option>
+          </select>
+        </div>
 
         <div class="mb-3">
           <label class="form-label">Email Address</label>
@@ -150,15 +109,12 @@
           <input type="password" id="loginPassword" class="form-control" required>
         </div>
 
-        <button type="submit" class="btn btn-primary w-100 py-2 mt-2">
-          Login
-        </button>
+        <button type="submit" class="btn btn-primary w-100 py-2 mt-2">Login</button>
 
         <p class="text-center mt-3">
           Don’t have an account?
           <a href="signup.html" class="fw-bold">Sign Up</a>
         </p>
-
       </form>
     </div>
   </div>
@@ -169,21 +125,17 @@
     <div class="toast align-items-center text-bg-success border-0" id="loginSuccessToast" role="alert"
       aria-live="assertive" aria-atomic="true">
       <div class="d-flex">
-        <div class="toast-body">
-          Login Successful! Redirecting...
-        </div>
+        <div class="toast-body">Login Successful! Redirecting...</div>
         <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
           aria-label="Close"></button>
       </div>
     </div>
 
     <!-- Error Toast -->
-    <div class="toast align-items-center text-bg-danger border-0" id="loginErrorToast" role="alert"
-      aria-live="assertive" aria-atomic="true">
+    <div class="toast align-items-center text-bg-danger border-0" id="loginErrorToast" role="alert" aria-live="assertive"
+      aria-atomic="true">
       <div class="d-flex">
-        <div class="toast-body">
-          Invalid email or password!
-        </div>
+        <div class="toast-body" id="loginErrorMsg">Invalid email or password!</div>
         <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"
           aria-label="Close"></button>
       </div>
@@ -196,36 +148,41 @@
     document.getElementById("loginForm").onsubmit = function (e) {
       e.preventDefault();
 
-      let users = JSON.parse(localStorage.getItem("users") || "[]");
-      let email = document.getElementById("loginEmail").value;
-      let password = document.getElementById("loginPassword").value;
+      const email = document.getElementById("loginEmail").value;
+      const password = document.getElementById("loginPassword").value;
+      const accountType = document.getElementById("accountType").value;
 
-      let user = users.find(u => u.email === email && u.password === password);
+      if (!accountType) {
+        document.getElementById("loginErrorMsg").innerText = "Please select account type!";
+        new bootstrap.Toast(document.getElementById("loginErrorToast")).show();
+        return;
+      }
+
+      const freelancers = JSON.parse(localStorage.getItem("freelancers") || "[]");
+      const recruiters = JSON.parse(localStorage.getItem("recruiters") || "[]");
+
+      let user;
+      if (accountType === "freelancer") {
+        user = freelancers.find(u => u.email === email && u.password === password);
+      } else {
+        user = recruiters.find(u => u.email === email && u.password === password);
+      }
 
       if (user) {
         localStorage.setItem("isLoggedIn", "true");
-        localStorage.setItem("loggedInUser", JSON.stringify({ name: user.name || "User", email: user.email }));
+        localStorage.setItem("loggedInUser", JSON.stringify(user));
 
-        let toastEl = document.getElementById("loginSuccessToast");
-        let toast = new bootstrap.Toast(toastEl);
-        toast.show();
-
-        document.getElementById("loginForm").reset();
+        new bootstrap.Toast(document.getElementById("loginSuccessToast")).show();
 
         setTimeout(() => {
           window.location.href = "dashboard.html";
         }, 1200);
-
       } else {
-        let toastEl = document.getElementById("loginErrorToast");
-        let toast = new bootstrap.Toast(toastEl);
-        toast.show();
-
-        document.getElementById("loginForm").reset();
+        document.getElementById("loginErrorMsg").innerText = "Invalid email or password!";
+        new bootstrap.Toast(document.getElementById("loginErrorToast")).show();
       }
-    }
+    };
   </script>
-
 </body>
 
 </html>
